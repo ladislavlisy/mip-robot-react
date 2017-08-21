@@ -34,6 +34,8 @@ class RobotWrapper extends React.Component {
                 }
 
                 //connect to first mip
+                console.log("scan OK")
+
                 var selectedMip = robots[0]
                 robotRef.appFinder.connect(selectedMip, function(err) {
                     if (err != null) {
@@ -60,9 +62,10 @@ class RobotWrapper extends React.Component {
                             }
                         })
                     })
+
                     selectedMip.setMipChestLedWithColor(0xff, 0x00, 0x00, 0x00, function(err) {
                         console.log("commad accepted");
-                    });
+                    })
                 })
             })
         }
