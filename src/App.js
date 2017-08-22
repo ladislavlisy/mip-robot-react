@@ -7,6 +7,7 @@ import mipRobot from './libs/mip/robot';
 
 class Button extends Component {
     robotAction(event) {
+        console.log("commad ACTION")
         return "ACTION!"
     }
     render() {
@@ -23,11 +24,20 @@ class RobotWrapper extends React.Component {
         console.log("constructor")
         this.appFinder = new mipFinder()
         this.appRobot = mipRobot
+        this.selRobot = undefined
     }
     robotAction(robotRef){
-        console.log("robot scan")
-        return function(actionNode){
-            robotRef.appFinder.scan(function(err, robots) {
+        return (function(actionNode){
+            console.log("robot:" + robotRef.selRobot.toString())
+
+            robotRef.selRobot.setMipChestLedWithColor(0xff, 0x00, 0x00, 0x00, function(err) {
+                console.log("commad accepted")
+            })
+        });
+    }
+    robotScan(robotRef){
+        return (function(actionNode) {
+            robotRef.appFinder.scan(function (err, robots) {
                 if (err != null) {
                     console.log(err)
                     return
@@ -36,39 +46,35 @@ class RobotWrapper extends React.Component {
                 //connect to first mip
                 console.log("scan OK")
 
-                var selectedMip = robots[0]
-                robotRef.appFinder.connect(selectedMip, function(err) {
+                robotRef.selRobot = robots[0]
+                this.appFinder.connect(robotRef.selRobot, function (err) {
                     if (err != null) {
                         console.log(err)
                         return
                     }
 
-                    console.log("connected")
+                    console.log("connected to robot:" + robotRef.selRobot.toString())
 
-                    var ignoreList = {"GET_STATUS":true, "GET_WEIGHT_LEVEL":true}
+                    var ignoreList = {"GET_STATUS": true, "GET_WEIGHT_LEVEL": true}
                     var ignore = true
 
                     //setup receive data notification
-                    selectedMip.enableBTReceiveDataNotification(true, function(err, data) {
+                    robotRef.selRobot.enableBTReceiveDataNotification(true, function (err, data) {
                         if (err) {
                             console.log(err)
                             return
                         }
 
                         //convert the response by MiPCommand
-                        selectedMip.convertMiPResponse(data, function(command, arr) {
+                        robotRef.selRobot.convertMiPResponse(data, function (command, arr) {
                             if (!ignore || ignoreList[command] === undefined || !ignoreList[command]) {
-                                console.log("> "+command+": "+arr)
+                                console.log("> " + command + ": " + arr)
                             }
                         })
                     })
-
-                    selectedMip.setMipChestLedWithColor(0xff, 0x00, 0x00, 0x00, function(err) {
-                        console.log("commad accepted");
-                    })
                 })
             })
-        }
+        });
     }
     render() {
         return (
@@ -81,6 +87,7 @@ class RobotWrapper extends React.Component {
                     To get started, edit <code>src/App.js</code> and save to reload.
                 </p>
                 <div className="btn-group" role="group" >
+                    <Button action="scan" robotAction={this.robotScan(this)}/>
                     <Button action="01" robotAction={this.robotAction(this)}/>
                 </div>
             </div>
