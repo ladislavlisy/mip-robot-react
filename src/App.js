@@ -28,6 +28,8 @@ class RobotWrapper extends React.Component {
     }
     robotAction(robotRef){
         return (function(actionNode){
+            console.log("action:" + actionNode)
+
             console.log("robot:" + robotRef.selRobot.toString())
 
             robotRef.selRobot.setMipChestLedWithColor(0xff, 0x00, 0x00, 0x00, function(err) {
@@ -37,6 +39,8 @@ class RobotWrapper extends React.Component {
     }
     robotScan(robotRef){
         return (function(actionNode) {
+            console.log("action:" + actionNode)
+
             robotRef.appFinder.scan(function (err, robots) {
                 if (err != null) {
                     console.log(err)
